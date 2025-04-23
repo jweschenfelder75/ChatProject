@@ -4,7 +4,7 @@ import socket
 
 
 class ChatClient:
-    def __init__(self, port):
+    def __init__(self, port: int, /):
         self.port = port
 
     def connect(self):
