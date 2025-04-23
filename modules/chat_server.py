@@ -1,0 +1,14 @@
+import socket
+
+# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-1/
+
+
+class ChatServer:
+    def __init__(self, port):
+        self.port = port
+
+    def connect(self):
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind((socket.gethostname(), self.port))
+        server_socket.listen(5)
+        print(f'Listening on {socket.gethostname()}:{self.port}')
