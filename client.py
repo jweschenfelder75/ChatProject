@@ -1,4 +1,4 @@
-from modules.chat_client import ChatClient
+from modules.views.client_ui import ClientUI
 
 # TODO: DocStrings are missing!
 
@@ -10,5 +10,4 @@ port = 5555
 Program entry point (starts the ChatClient).
 """
 if __name__ == "__main__":
-    client = ChatClient(ip, port)
-    client.connect()
+    client = ClientUI(ip, port)
