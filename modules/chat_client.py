@@ -1,18 +1,61 @@
 import socket
+import errno
+import sys
+from threading import Thread
+from modules.utils.utils import Utils
 
-# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-1/
+# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-2/
 
 
 class ChatClient:
-    def __init__(self, port: int, /):
+    def __init__(self, ip: str, port: int, /):
+        self.utils = Utils()
+        self.ip = ip
         self.port = port
+        self.client_socket = None
+        self.username = "Test"
+
+    def send(self):
+        message = input(f'{self.username} > ')
+        if message == '[exit]':
+            message = self.utils.format_message(self.username, 'Signing out')
+            self.client_socket.send(message.encode('utf-8'))
+            print('Signed out')
+            self.client_socket.close()
+            sys.exit()
+        elif message:
+            formatted_message = self.utils.format_message(self.username, message).encode('utf-8')
+            self.client_socket.send(formatted_message)
+
+    def receive(self):
+        try:
+            message_size = self.client_socket.recv(self.utils.LENGTH_HEADER_SIZE)
+            if message_size:
+                message_size = int(message_size.decode('utf-8').strip())
+                sender = self.client_socket.recv(self.utils.USER_HEADER_SIZE).decode('utf-8').strip()
+                message = self.client_socket.recv(message_size).decode('utf-8')
+                print(f'\n{sender} > {message}\n{self.username} > ')
+        except IOError as e:
+            if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                print('Encountered error while reading', e)
+                self.client_socket.close()
+                sys.exit()
+        except Exception as e:
+            self.client_socket.close()
+            print('Encountered error', e)
+            sys.exit()
+
+    def loop_receive(self):
+        while True:
+            self.receive()
 
     def connect(self):
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_socket.connect((socket.gethostname(), self.port))
-        print(f'Connected on {socket.gethostname()}:{self.port}')
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((self.ip, self.port))
+        self.client_socket.setblocking(False)
+
+        receive_thread = Thread(target=self.loop_receive)
+        receive_thread.start()
 
         while True:
-            message = client_socket.recv(512)
-            if message:
-                print(message.decode('utf-8'))
+            self.send()
