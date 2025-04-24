@@ -2,7 +2,7 @@ import socket
 import select
 from modules.utils.utils import Utils
 
-# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-2/
+# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
 
 
 class ChatServer:
