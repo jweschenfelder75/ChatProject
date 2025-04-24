@@ -5,6 +5,7 @@ from modules.chat_server import ChatServer
 ip = "127.0.0.1"
 port = 5555
 
+
 """
 Program entry point (starts the ChatServer).
 """
