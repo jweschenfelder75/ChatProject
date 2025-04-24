@@ -12,10 +12,6 @@ class ChatClient:
         self.ip = ip
         self.port = port
         self.client_socket = None
-        self.name_input = None
-        self.chat_log = None
-        self.send_button = None
-        self.message_input = None
 
     def send(self, username: str, message: str, /) -> str:
         if message == '[exit]':
