@@ -1,7 +1,7 @@
 import socket
 import errno
-import sys
-from modules.utils.utils import Utils
+from modules.utils import Utils
+from modules.objects import Result
 
 # See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
 
@@ -24,23 +24,23 @@ class ChatClient:
             self.client_socket.send(formatted_message)
             return f'\n{username} > {message}'
 
-    def receive(self) -> str:
+    def receive(self) -> Result:
         try:
             message_size = self.client_socket.recv(self.utils.LENGTH_HEADER_SIZE)
             if message_size:
                 message_size = int(message_size.decode('utf-8').strip())
                 sender = self.client_socket.recv(self.utils.USER_HEADER_SIZE).decode('utf-8').strip()
                 message = self.client_socket.recv(message_size).decode('utf-8')
-                return f'\n{sender} > {message}'
+                return Result(f'\n{sender} > {message}', True)
         except IOError as e:
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
                 print('Encountered error while reading', e)
                 self.client_socket.close()
-                sys.exit()
+                return Result(None, False)
         except Exception as e:
             print('Encountered error', e)
             self.client_socket.close()
-            sys.exit()
+            Result(None, False)
 
     def connect(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

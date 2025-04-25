@@ -32,9 +32,12 @@ class ClientUI:
 
     def loop_receive(self):
         while True:
-            message = self.client.receive()
-            if message:
-                self.print_message(message)
+            result = self.client.receive()
+            if result:
+                if result.success:
+                    self.print_message(result.text)
+                else:
+                    sys.exit()
 
     def lock_username(self):
         if self.name_input.get():
