@@ -2,7 +2,8 @@ class Utils:
     LENGTH_HEADER_SIZE = 8
     USER_HEADER_SIZE = 16
 
-    def format_message(self, username, message):
+    @staticmethod
+    def format_message(username, message):
         if not message:
             return None
         length_header = f'{len(message):<{Utils.LENGTH_HEADER_SIZE}}'
