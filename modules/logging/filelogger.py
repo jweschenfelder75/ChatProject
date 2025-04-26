@@ -1,0 +1,2 @@
+class FileLogger:
+    pass

@@ -46,3 +46,6 @@ class ChatClient:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.ip, self.port))
         self.client_socket.setblocking(False)
+
+    def disconnect(self):
+        self.client_socket.close()

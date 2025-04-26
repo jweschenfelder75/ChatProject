@@ -14,6 +14,7 @@ class ChatServer:
         self.all_sockets = None
         self.server_socket = None
         self.client_socket = None
+        print(ServerUI())
 
     def receive(self, client_socket: socket.socket, /) -> str | None:
         size_header = client_socket.recv(self.utils.LENGTH_HEADER_SIZE)
@@ -21,7 +22,6 @@ class ChatServer:
             return None
         size_header = size_header.decode('utf-8')
         message_size = int(size_header.strip())
-        print(ServerUI())
         user_header = client_socket.recv(self.utils.USER_HEADER_SIZE).decode('utf-8')
         user = user_header.strip()
         message = client_socket.recv(message_size).decode('utf-8')
@@ -37,7 +37,6 @@ class ChatServer:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.ip, self.port))
         self.server_socket.listen(10)
-        print(ServerUI())
         print(f'Listening on {self.ip}:{self.port}')
         self.all_sockets = [self.server_socket]
         self.listen()
