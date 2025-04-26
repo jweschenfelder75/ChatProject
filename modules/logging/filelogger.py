@@ -20,7 +20,6 @@ class FileLogger:
         self.writelog("DEBUG", text)
 
     def info(self, text: str, /):
-
         self.writelog("INFO", text)
 
     def writelog(self, level: str, text: str, /):
