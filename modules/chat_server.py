@@ -2,12 +2,15 @@ import socket
 import select
 from modules.utils import Utils
 from modules.views import ServerUI
+from modules.logging import FileLogger
 
 # See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
 
 
 class ChatServer:
     def __init__(self, ip: str, port: int, /):
+        print(ChatServer.__name__)
+        self.log = FileLogger(ChatServer.__name__)
         self.utils = Utils()
         self.ip = ip
         self.port = port
@@ -15,6 +18,7 @@ class ChatServer:
         self.server_socket = None
         self.client_socket = None
         print(ServerUI())
+        self.connect()
 
     def receive(self, client_socket: socket.socket, /) -> str | None:
         size_header = client_socket.recv(self.utils.LENGTH_HEADER_SIZE)
@@ -37,6 +41,7 @@ class ChatServer:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.ip, self.port))
         self.server_socket.listen(10)
+        self.log.debug("Start ChatServer...")
         print(f"Listening on {self.ip}:{self.port}")
         self.all_sockets = [self.server_socket]
         self.listen()

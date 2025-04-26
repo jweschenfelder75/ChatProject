@@ -3,10 +3,12 @@ from threading import Thread
 from tkinter import *
 from tkinter import messagebox
 from modules.chat_client import ChatClient
+from modules.logging import FileLogger
 
 
 class ClientUI:
     def __init__(self, ip: str, port: int, /):
+        self.log = FileLogger(ClientUI.__class__.__name__)
         self.client = ChatClient(ip, port)
         self.stop_event = threading.Event()
         self.window = None
@@ -17,6 +19,7 @@ class ClientUI:
         self.send_button = None
         self.client.connect()
         self.initialize()
+        self.log.debug("Start Client UI...")
 
     def send(self):
         username = self.name_input.get()
@@ -47,7 +50,6 @@ class ClientUI:
 
     def lock_username(self):
         if self.name_input.get():
-            print("Test")
             self.message_input.configure(state=NORMAL)
             self.send_button.configure(state=NORMAL)
             self.name_input.configure(state=DISABLED)
@@ -55,6 +57,7 @@ class ClientUI:
             messagebox.showinfo("Error", "Please enter a user name!")
 
     def on_close(self):
+        self.log.debug("Close Client UI...")
         self.stop_event.set()
         self.client.disconnect()
         self.window.destroy()

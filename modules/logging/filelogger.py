@@ -9,26 +9,28 @@ class FileLogger:
     def __init__(self, component: str, /):
         self.__now = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
         self.__component = component
+        print(self.__component)
 
     def error(self, text: str, /):
-        self.writelog("ERROR", text)
+        self.__writelog("ERROR", text)
 
     def warning(self, text: str, /):
-        self.writelog("WARNING", text)
+        self.__writelog("WARNING", text)
 
     def debug(self, text: str, /):
-        self.writelog("DEBUG", text)
+        self.__writelog("DEBUG", text)
 
     def info(self, text: str, /):
-        self.writelog("INFO", text)
+        self.__writelog("INFO", text)
 
-    def writelog(self, level: str, text: str, /):
-        self.roll()
+    def __writelog(self, level: str, text: str, /):
+        self.__roll()
         with open(FileLogger.logfile, "a", encoding="UTF-8") as file:
-            file.write(f"{self.__now}> {self.__component} - {level}: {text}")
+            file.write(f"{self.__now}> {self.__component} - {level}: {text}\n")
 
     @staticmethod
-    def roll():
-        file_size = os.path.getsize(FileLogger.logfile)
-        if file_size > 5120:
-            os.remove(FileLogger.logfile)
+    def __roll():
+        if os.path.isfile(FileLogger.logfile):
+            file_size = os.path.getsize(FileLogger.logfile)
+            if file_size > 5120:
+                os.remove(FileLogger.logfile)
