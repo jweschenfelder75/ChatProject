@@ -6,6 +6,6 @@ class Utils:
     def format_message(username, message):
         if not message:
             return None
-        length_header = f'{len(message):<{Utils.LENGTH_HEADER_SIZE}}'
-        user_header = f'{username:<{Utils.USER_HEADER_SIZE}}'
-        return f'{length_header}{user_header}{message}'
+        length_header = f"{len(message):<{Utils.LENGTH_HEADER_SIZE}}"
+        user_header = f"{username:<{Utils.USER_HEADER_SIZE}}"
+        return f"{length_header}{user_header}{message}"

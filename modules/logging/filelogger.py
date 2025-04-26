@@ -1,12 +1,14 @@
-import os, sys
+import os
+import sys
 from datetime import datetime
 
 
 class FileLogger:
     logfile = f"{sys.path[0]}\\chat_project.log"
 
-    def __init__(self):
-        self.__now = datetime.now().strftime('%Y/%m/%d %H:%M:%S.%f')
+    def __init__(self, component: str, /):
+        self.__now = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
+        self.__component = component
 
     def error(self, text: str, /):
         self.writelog("ERROR", text)
@@ -24,7 +26,7 @@ class FileLogger:
     def writelog(self, level: str, text: str, /):
         self.roll()
         with open(FileLogger.logfile, "a", encoding="UTF-8") as file:
-            file.write(f"{self.__now}> {level}: {text}")
+            file.write(f"{self.__now}> {self.__component} - {level}: {text}")
 
     @staticmethod
     def roll():

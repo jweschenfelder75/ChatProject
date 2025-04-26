@@ -23,7 +23,7 @@ class ClientUI:
         message = self.message_input.get()
         rec_message = self.client.send(username, message)
         self.print_message(rec_message)
-        if message == '[exit]':
+        if message == "[exit]":
             self.on_close()
         else:
             self.message_input.delete(0, END)
@@ -52,7 +52,7 @@ class ClientUI:
             self.send_button.configure(state=NORMAL)
             self.name_input.configure(state=DISABLED)
         else:
-            messagebox.showinfo('Error', 'Please enter a user name!')
+            messagebox.showinfo("Error", "Please enter a user name!")
 
     def on_close(self):
         self.stop_event.set()
@@ -60,36 +60,36 @@ class ClientUI:
         self.window.destroy()
 
     def initialize(self):
-        self.window = Tk(className='Chat program')
+        self.window = Tk(className="Chat program")
 
-        id_label = Label(self.window, text='Id')
+        id_label = Label(self.window, text="Id")
         id_label.grid(row=0, column=0)
 
         self.id_input = Entry(self.window, width=125, state=DISABLED)
         self.id_input.grid(row=0, column=1, columnspan=2)
 
-        name_label = Label(self.window, text='Name')
+        name_label = Label(self.window, text="Name")
         name_label.grid(row=1, column=0)
 
         self.name_input = Entry(self.window, width=100)
         self.name_input.grid(row=1, column=1)
 
-        name_confirm_button = Button(self.window, width=20, text='Confirm', bg='white', command=self.lock_username)
+        name_confirm_button = Button(self.window, width=20, text="Confirm", bg="white", command=self.lock_username)
         name_confirm_button.grid(row=1, column=2)
 
-        self.chat_log = Text(self.window, width=100, height=20, bg='lightyellow', state=DISABLED)
+        self.chat_log = Text(self.window, width=100, height=20, bg="lightyellow", state=DISABLED)
         self.chat_log.grid(row=2, column=0, columnspan=3)
 
-        message_label = Label(self.window, text='Message')
+        message_label = Label(self.window, text="Message")
         message_label.grid(row=3, column=0)
 
         self.message_input = Entry(self.window, width=100, state=DISABLED)
         self.message_input.grid(row=3, column=1)
 
-        self.send_button = Button(self.window, width=20, text='Send', bg='white', command=self.send, state=DISABLED)
+        self.send_button = Button(self.window, width=20, text="Send", bg="white", command=self.send, state=DISABLED)
         self.send_button.grid(row=3, column=2)
 
-        exit_button = Button(self.window, width=20, text='Exit', bg='white', command=self.on_close)
+        exit_button = Button(self.window, width=20, text="Exit", bg="white", command=self.on_close)
         exit_button.grid(row=4, column=2)
 
         receive_thread = Thread(target=self.loop_receive, daemon=True)
