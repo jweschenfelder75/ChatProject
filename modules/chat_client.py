@@ -9,7 +9,6 @@ from modules.logging import FileLogger
 
 class ChatClient:
     def __init__(self, ip: str, port: int, /):
-        print(ChatClient.__name__)
         self.log = FileLogger(ChatClient.__name__)
         self.utils = Utils()
         self.ip = ip
@@ -21,6 +20,7 @@ class ChatClient:
             message = self.utils.format_message(username, "Signing out")
             self.client_socket.send(message.encode("utf-8"))
             self.client_socket.close()
+            self.log.debug("Signed out")
             return "\nSigned out"
         elif message:
             formatted_message = self.utils.format_message(username, message).encode("utf-8")
@@ -29,18 +29,20 @@ class ChatClient:
 
     def receive(self) -> Result:
         try:
-            message_size = self.client_socket.recv(self.utils.LENGTH_HEADER_SIZE)
+            message_size = self.client_socket.recv(self.utils.get_length_header_size())
             if message_size:
                 message_size = int(message_size.decode("utf-8").strip())
-                sender = self.client_socket.recv(self.utils.USER_HEADER_SIZE).decode("utf-8").strip()
+                sender = self.client_socket.recv(self.utils.get_user_header_size()).decode("utf-8").strip()
                 message = self.client_socket.recv(message_size).decode("utf-8")
                 return Result(f"\n{sender} > {message}", True)
         except IOError as e:
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
+                self.log.error(f"Encountered error while reading: {e.args}")
                 print("Encountered error while reading", e)
                 self.client_socket.close()
                 return Result(None, False)
         except Exception as e:
+            self.log.error(f"Encountered error: {e.args}")
             print("Encountered error", e)
             self.client_socket.close()
             Result(None, False)

@@ -1,17 +1,18 @@
-from modules.logging import FileLogger
-
-
 class Utils:
-    LENGTH_HEADER_SIZE = 8
-    USER_HEADER_SIZE = 16
+    __length_header_size = 8
+    __user_header_size = 16
 
-    def __init__(self):
-        self.log = FileLogger(Utils.__class__.__name__)
+    @staticmethod
+    def get_length_header_size() -> int:
+        return Utils.__length_header_size
+
+    @staticmethod
+    def get_user_header_size() -> int:
+        return Utils.__user_header_size
 
     def format_message(self, username: str, message: str, /):
         if not message:
-            self.log.warning("Not a message.")
             return None
-        length_header = f"{len(message):<{Utils.LENGTH_HEADER_SIZE}}"
-        user_header = f"{username:<{Utils.USER_HEADER_SIZE}}"
+        length_header = f"{len(message):<{self.get_length_header_size()}}"
+        user_header = f"{username:<{self.get_user_header_size()}}"
         return f"{length_header}{user_header}{message}"

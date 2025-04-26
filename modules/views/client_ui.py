@@ -8,7 +8,7 @@ from modules.logging import FileLogger
 
 class ClientUI:
     def __init__(self, ip: str, port: int, /):
-        self.log = FileLogger(ClientUI.__class__.__name__)
+        self.log = FileLogger(ClientUI.__name__)
         self.client = ChatClient(ip, port)
         self.stop_event = threading.Event()
         self.window = None
@@ -45,7 +45,8 @@ class ClientUI:
                         self.print_message(result.text)
                     else:
                         self.on_close()
-            except Exception:
+            except Exception as e:
+                self.log.error(f"Encountered error: {e.args}")
                 break
 
     def lock_username(self):

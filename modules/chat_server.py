@@ -9,7 +9,6 @@ from modules.logging import FileLogger
 
 class ChatServer:
     def __init__(self, ip: str, port: int, /):
-        print(ChatServer.__name__)
         self.log = FileLogger(ChatServer.__name__)
         self.utils = Utils()
         self.ip = ip
@@ -21,12 +20,12 @@ class ChatServer:
         self.connect()
 
     def receive(self, client_socket: socket.socket, /) -> str | None:
-        size_header = client_socket.recv(self.utils.LENGTH_HEADER_SIZE)
+        size_header = client_socket.recv(self.utils.get_length_header_size())
         if not size_header:
             return None
         size_header = size_header.decode("utf-8")
         message_size = int(size_header.strip())
-        user_header = client_socket.recv(self.utils.USER_HEADER_SIZE).decode("utf-8")
+        user_header = client_socket.recv(self.utils.get_user_header_size()).decode("utf-8")
         user = user_header.strip()
         message = client_socket.recv(message_size).decode("utf-8")
         print(f"{user} > {message}")
@@ -42,6 +41,7 @@ class ChatServer:
         self.server_socket.bind((self.ip, self.port))
         self.server_socket.listen(10)
         self.log.debug("Start ChatServer...")
+        self.log.debug(f"Listening on {self.ip}:{self.port}")
         print(f"Listening on {self.ip}:{self.port}")
         self.all_sockets = [self.server_socket]
         self.listen()
@@ -54,18 +54,22 @@ class ChatServer:
                 if item_socket == self.server_socket:
                     client_socket, client_address = self.server_socket.accept()
                     self.all_sockets.append(client_socket)
+                    client_address_name = f"{client_address[0]}:{client_address[1]}"
+                    self.log.debug(f"Established connection to {client_address_name}")
                     print(f"Established connection to {client_address[0]}:{client_address[1]}")
                 else:
                     try:
                         message = self.receive(item_socket)
                         if not message:
                             client_socket_name = f"{client_socket.getpeername()[0]}:{client_socket.getpeername()[1]}"
+                            self.log.debug(f"{client_socket_name} closed the connection")
                             print(f"{client_socket_name} closed the connection")
                             self.all_sockets.remove(item_socket)
                             continue
                         self.broadcast(item_socket, message)
                     except ConnectionResetError as e:
                         self.all_sockets.remove(item_socket)
+                        self.log.error(f"Client forcefully closed the connection, {e.args}")
                         print("Client forcefully closed the connection", e)
 
             for error_socket in error_sockets:
