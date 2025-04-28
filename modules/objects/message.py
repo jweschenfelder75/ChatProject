@@ -7,4 +7,6 @@ import uuid
 class Message:
     uid: uuid.uuid4()
     timestamp: datetime
+    from_username: str
+    to_username: str
     text: str

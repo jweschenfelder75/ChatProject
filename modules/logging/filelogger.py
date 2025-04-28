@@ -29,7 +29,7 @@ class FileLogger:
 
     @staticmethod
     def __roll():
-        if os.path.isfile(FileLogger.logfile):
-            file_size = os.path.getsize(FileLogger.logfile)
+        if os.path.isfile(FileLogger.__logfile):
+            file_size = os.path.getsize(FileLogger.__logfile)
             if file_size > 5120:
-                os.remove(FileLogger.logfile)
+                os.remove(FileLogger.__logfile)
