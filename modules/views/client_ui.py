@@ -50,14 +50,17 @@ class ClientUI:
 
     def print_message(self, message: str, /):
         """
-        Appends a given text message in the Chat Log window.
+        Replaces some emojis in a given text and appends the result in the Chat Log window.
 
         Args:
             message (str): Text message
         """
+        message = self.replace_emojis(message)
         self.chat_log.configure(state=NORMAL)
         self.chat_log.insert(END, message)
+        self.chat_log.see(END)
         self.chat_log.configure(state=DISABLED)
+        self.message_input.focus_set()
 
     def loop_receive(self):
         """
@@ -84,6 +87,7 @@ class ClientUI:
             self.message_input.configure(state=NORMAL)
             self.send_button.configure(state=NORMAL)
             self.name_input.configure(state=DISABLED)
+            self.message_input.focus_set()
         else:
             msg = f"Please enter a user name which is between 1 and {max_len} characters long!"
             messagebox.showinfo("Error", msg)
@@ -106,30 +110,31 @@ class ClientUI:
         title_text = "Chat program"
         self.window = Tk(className=title_text)
         self.window.title(title_text)
+        self.window.configure(bg="ghostwhite")
 
-        name_label = Label(self.window, text="Name", anchor="e")
+        name_label = Label(self.window, text="Name", anchor="e", bg="ghostwhite")
         name_label.grid(row=0, column=0, sticky="e")
 
-        self.name_input = Entry(self.window, width=100)
+        self.name_input = Entry(self.window, width=100, bg="ghostwhite", disabledbackground="lavender")
         self.name_input.grid(row=0, column=1)
         self.name_input.focus_set()
 
-        name_confirm_button = Button(self.window, width=20, text="Confirm", bg="white", command=self.lock_username)
+        name_confirm_button = Button(self.window, width=20, text="Confirm", bg="ghostwhite", command=self.lock_username)
         name_confirm_button.grid(row=0, column=2)
 
         self.chat_log = Text(self.window, width=100, height=20, bg="lightyellow", state=DISABLED)
         self.chat_log.grid(row=1, column=0, columnspan=3)
 
-        message_label = Label(self.window, text="Message", anchor="e")
+        message_label = Label(self.window, text="Message", anchor="e", bg="ghostwhite")
         message_label.grid(row=2, column=0, sticky="e")
 
-        self.message_input = Entry(self.window, width=100, state=DISABLED)
+        self.message_input = Entry(self.window, width=100, bg="ghostwhite", disabledbackground="lavender", state=DISABLED)
         self.message_input.grid(row=2, column=1)
 
-        self.send_button = Button(self.window, width=20, text="Send", bg="white", command=self.send, state=DISABLED)
+        self.send_button = Button(self.window, width=20, text="Send", bg="ghostwhite", command=self.send, state=DISABLED)
         self.send_button.grid(row=2, column=2)
 
-        exit_button = Button(self.window, width=20, text="Exit", bg="white", command=self.on_close)
+        exit_button = Button(self.window, width=20, text="Exit", bg="ghostwhite", command=self.on_close)
         exit_button.grid(row=3, column=2)
 
         receive_thread = Thread(target=self.loop_receive, daemon=True)
@@ -138,3 +143,29 @@ class ClientUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.window.mainloop()
+
+    @staticmethod
+    def replace_emojis(message: str, /) -> str:
+        """
+        Replaces some emojis in a given text message
+
+        Args:
+            message (str): Text message
+
+        Returns:
+            str: Message with replaces emojis
+        """
+        emoji_map = {
+            ":)": chr(0x1F642),
+            ":-)": chr(0x1F642),
+            ":(": chr(0x1F641),
+            ":-(": chr(0x1F641),
+            ";)": chr(0x1F609),
+            ";-)": chr(0x1F609),
+            ":D": chr(0x1F604),
+            "<3": chr(0x2764),
+            ":P": chr(0x1F61B)
+        }
+        for shortcut, emoji in emoji_map.items():
+            message = message.replace(shortcut, emoji)
+        return message
