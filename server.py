@@ -1,6 +1,14 @@
 from modules.chat_server import ChatServer
 
 """
+Author:     Jana Weschenfelder
+Version:    0.1
+Course:     Python Advanced
+Docent:     Ms Meyer
+"""
+
+
+"""
 Program entry point (starts the ChatServer). The Chat Server must be started before the Chat Client.
 """
 if __name__ == "__main__":
