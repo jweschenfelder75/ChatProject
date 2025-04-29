@@ -26,7 +26,7 @@ class ClientUI:
         message = self.message_input.get()
         rec_message = self.client.send(username, message)
         self.print_message(rec_message)
-        if message == "[exit]":  # Not really needed at the moment can be used for client status later
+        if message == "[exit]":
             self.on_close()
         else:
             self.message_input.delete(0, END)

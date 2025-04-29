@@ -1,9 +1,8 @@
-import socket
 from dataclasses import dataclass
 
 
 @dataclass
 class Client:
     id: int
-    socket: socket.socket
+    socket_name: str
     username: str

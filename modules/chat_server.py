@@ -3,7 +3,6 @@ import select
 from modules.utils import Utils
 from modules.views import ServerUI
 from modules.logging import FileLogger
-from modules.objects.clientpool import ClientPool
 
 # See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
 
@@ -11,7 +10,6 @@ from modules.objects.clientpool import ClientPool
 class ChatServer:
     def __init__(self, ip: str, port: int, /):
         self.log = FileLogger(ChatServer.__name__)
-        self.clientpool = ClientPool([])
         self.utils = Utils()
         self.ip = ip
         self.port = port
@@ -45,8 +43,7 @@ class ChatServer:
         self.log.debug("Start ChatServer...")
         self.log.debug(f"Listening on {self.ip}:{self.port}")
         print(f"Listening on {self.ip}:{self.port}")
-        self.all_sockets = [self.server_socket]  # TODO -> clientpool
-        self.clientpool.add(self.port, self.server_socket, "[ALL]")
+        self.all_sockets = [self.server_socket]
         self.listen()
 
     def listen(self):
@@ -56,8 +53,7 @@ class ChatServer:
             for item_socket in read_sockets:
                 if item_socket == self.server_socket:
                     client_socket, client_address = self.server_socket.accept()
-                    self.all_sockets.append(client_socket)  # TODO -> clientpool
-                    self.clientpool.add(int(client_address[1]), self.client_socket, "[unnamed]")
+                    self.all_sockets.append(client_socket)
                     client_address_name = f"{client_address[0]}:{client_address[1]}"
                     self.log.debug(f"Established connection to {client_address_name}")
                     print(f"Established connection to {client_address[0]}:{client_address[1]}")
@@ -68,31 +64,13 @@ class ChatServer:
                             client_socket_name = f"{client_socket.getpeername()[0]}:{client_socket.getpeername()[1]}"
                             self.log.debug(f"{client_socket_name} closed the connection")
                             print(f"{client_socket_name} closed the connection")
-                            self.all_sockets.remove(item_socket)  # TODO -> clientpool
-                            self.clientpool.remove(item_socket)
+                            self.all_sockets.remove(item_socket)
                             continue
-                        if "[list]" in message:
-                            self.send_client_list(item_socket)
-                        else:
-                            self.broadcast(item_socket, message)
+                        self.broadcast(item_socket, message)
                     except ConnectionResetError as e:
-                        self.all_sockets.remove(item_socket)  # TODO -> clientpool
-                        self.clientpool.remove(item_socket)
+                        self.all_sockets.remove(item_socket)
                         self.log.error(f"Client forcefully closed the connection, {e.args}")
                         print("Client forcefully closed the connection", e)
 
             for error_socket in error_sockets:
-                self.all_sockets.remove(error_socket)  # TODO -> clientpool
-                self.clientpool.remove(error_socket)
-
-    def send_client_list(self, requester_socket: socket.socket):
-        user_list = []
-        for client in self.clientpool.get_list:
-            if client:
-                try:
-                    user_list.append(f"{client.username}")
-                except Exception:
-                    continue
-
-        message = "[Connected Users]: " + ", ".join(user_list)
-        requester_socket.send(message.encode("utf-8"))
+                self.all_sockets.remove(error_socket)
