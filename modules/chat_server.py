@@ -1,10 +1,9 @@
 import socket
 import select
-from modules.utils import Utils
+from modules import ChatBaseClass
 from modules.views import ServerUI
-from modules.logging import FileLogger
 
-# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
+# See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-2/
 """
     Business logic for the Chat Server.
     Establishes the WebSockets server side, listens on a specific ip and port, manages client connections, 
@@ -12,7 +11,7 @@ from modules.logging import FileLogger
 """
 
 
-class ChatServer:
+class ChatServer(ChatBaseClass):
     def __init__(self, ip: str, port: int, /):
         """
         Constructor of the class ChatServer.
@@ -21,10 +20,7 @@ class ChatServer:
             ip (str): IP Address of the Socket Server (where it should listen on)
             port (int): Port of the Socket Server (where it should listen on)
         """
-        self.log = FileLogger(ChatServer.__name__)
-        self.utils = Utils()
-        self.ip = ip
-        self.port = port
+        super().__init__(ip, port)
         self.all_sockets = None
         self.server_socket = None
         self.client_socket = None

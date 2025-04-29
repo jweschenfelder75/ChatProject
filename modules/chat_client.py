@@ -1,8 +1,8 @@
 import socket
 import errno
-from modules.utils import Utils
-from modules.objects import Result
-from modules.logging import FileLogger
+
+from modules import ChatBaseClass
+from modules.objects.result import Result
 
 # See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
 """
@@ -11,7 +11,7 @@ from modules.logging import FileLogger
 """
 
 
-class ChatClient:
+class ChatClient(ChatBaseClass):
     def __init__(self, ip: str, port: int, /):
         """
         Constructor of the class ChatClient.
@@ -21,10 +21,7 @@ class ChatClient:
             ip (str): IP Address of the Socket Server (where it should be connected to)
             port (int): Port of the Socket Server (where it should be connected to)
         """
-        self.log = FileLogger(ChatClient.__name__)
-        self.utils = Utils()
-        self.ip = ip
-        self.port = port
+        super().__init__(ip, port)
         self.client_socket = None
 
     def send(self, username: str, message: str, /) -> str:
