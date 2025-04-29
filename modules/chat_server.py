@@ -9,6 +9,13 @@ from modules.logging import FileLogger
 
 class ChatServer:
     def __init__(self, ip: str, port: int, /):
+        """
+        Constructor of the class ChatServer.
+
+        Args:
+            ip ():
+            port ():
+        """
         self.log = FileLogger(ChatServer.__name__)
         self.utils = Utils()
         self.ip = ip
@@ -20,6 +27,14 @@ class ChatServer:
         self.connect()
 
     def receive(self, client_socket: socket.socket, /) -> str | None:
+        """
+
+        Args:
+            client_socket ():
+
+        Returns:
+
+        """
         size_header = client_socket.recv(self.utils.get_length_header_size())
         if not size_header:
             return None
@@ -48,6 +63,9 @@ class ChatServer:
         self.listen()
 
     def listen(self):
+        """
+
+        """
         client_socket = None
         while True:
             read_sockets, _, error_sockets = select.select(self.all_sockets, [], self.all_sockets)
@@ -79,6 +97,11 @@ class ChatServer:
                 self.remove_socket(error_socket)
 
     def remove_socket(self, item_socket: socket.socket, /):
+        """
+
+        Args:
+            item_socket ():
+        """
         try:
             item_socket.close()
         except Exception:

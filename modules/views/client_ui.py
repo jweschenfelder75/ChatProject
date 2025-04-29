@@ -8,6 +8,13 @@ from modules.logging import FileLogger
 
 class ClientUI:
     def __init__(self, ip: str, port: int, /):
+        """
+        Constructor of the class ClientUI.
+
+        Args:
+            ip ():
+            port ():
+        """
         self.log = FileLogger(ClientUI.__name__)
         self.client = ChatClient(ip, port)
         self.stop_event = threading.Event()
@@ -22,6 +29,9 @@ class ClientUI:
         self.log.debug("Start Client UI...")
 
     def send(self):
+        """
+
+        """
         username = self.name_input.get()
         message = self.message_input.get()
         rec_message = self.client.send(username, message)
@@ -32,11 +42,19 @@ class ClientUI:
             self.message_input.delete(0, END)
 
     def print_message(self, message):
+        """
+
+        Args:
+            message ():
+        """
         self.chat_log.configure(state=NORMAL)
         self.chat_log.insert(END, message)
         self.chat_log.configure(state=DISABLED)
 
     def loop_receive(self):
+        """
+
+        """
         while not self.stop_event.is_set():
             try:
                 result = self.client.receive()
@@ -50,6 +68,9 @@ class ClientUI:
                 break
 
     def lock_username(self):
+        """
+
+        """
         if self.name_input.get():
             self.message_input.configure(state=NORMAL)
             self.send_button.configure(state=NORMAL)
@@ -58,6 +79,9 @@ class ClientUI:
             messagebox.showinfo("Error", "Please enter a user name!")
 
     def on_close(self):
+        """
+
+        """
         if messagebox.askokcancel("Exit", "Do you really want to exit the chat?"):
             self.log.debug("Close Client UI...")
             self.stop_event.set()
@@ -65,6 +89,9 @@ class ClientUI:
             self.window.destroy()
 
     def initialize(self):
+        """
+
+        """
         title_text = "Chat program"
         self.window = Tk(className=title_text)
         self.window.title(title_text)

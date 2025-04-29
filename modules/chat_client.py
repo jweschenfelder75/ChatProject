@@ -9,6 +9,13 @@ from modules.logging import FileLogger
 
 class ChatClient:
     def __init__(self, ip: str, port: int, /):
+        """
+        Constructor of the class ChatClient.
+
+        Args:
+            ip ():
+            port ():
+        """
         self.log = FileLogger(ChatClient.__name__)
         self.utils = Utils()
         self.ip = ip
@@ -16,6 +23,15 @@ class ChatClient:
         self.client_socket = None
 
     def send(self, username: str, message: str, /) -> str:
+        """
+
+        Args:
+            username ():
+            message ():
+
+        Returns:
+
+        """
         if message == "[exit]":  # Not really needed at the moment can be used for client status later
             message = self.utils.format_message(username, "Signing out")
             self.client_socket.send(message.encode("utf-8"))
@@ -28,6 +44,11 @@ class ChatClient:
             return f"\n{username} > {message}"
 
     def receive(self) -> Result:
+        """
+
+        Returns:
+
+        """
         try:
             message_size = self.client_socket.recv(self.utils.get_length_header_size())
             if message_size:
@@ -50,12 +71,18 @@ class ChatClient:
             return Result(None, False)
 
     def connect(self):
+        """
+
+        """
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.ip, self.port))
         self.client_socket.setblocking(False)
         self.log.debug("Start ChatClient...")
 
     def disconnect(self):
+        """
+
+        """
         try:
             self.client_socket.shutdown(socket.SHUT_RDWR)
         except Exception:

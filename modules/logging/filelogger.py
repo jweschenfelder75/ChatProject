@@ -7,21 +7,53 @@ class FileLogger:
     __logfile = f"{sys.path[0]}\\chat_project.log"
 
     def __init__(self, component: str, /):
+        """
+        Constructor of the class FileLogger.
+
+        Args:
+            component ():
+        """
         self.__component = component
 
     def error(self, text: str, /):
+        """
+
+        Args:
+            text ():
+        """
         self.__writelog("ERROR", text)
 
     def warning(self, text: str, /):
+        """
+
+        Args:
+            text ():
+        """
         self.__writelog("WARN", text)
 
     def debug(self, text: str, /):
+        """
+
+        Args:
+            text ():
+        """
         self.__writelog("DEBUG", text)
 
     def info(self, text: str, /):
+        """
+
+        Args:
+            text ():
+        """
         self.__writelog("INFO", text)
 
     def __writelog(self, level: str, text: str, /):
+        """
+
+        Args:
+            level ():
+            text ():
+        """
         self.__roll()
         self.__now = datetime.now().strftime("%Y/%m/%d %H:%M:%S.%f")
         with open(FileLogger.__logfile, "a", encoding="UTF-8") as file:
@@ -29,6 +61,9 @@ class FileLogger:
 
     @staticmethod
     def __roll():
+        """
+
+        """
         if os.path.isfile(FileLogger.__logfile):
             file_size = os.path.getsize(FileLogger.__logfile)
             if file_size > 5120:
