@@ -41,8 +41,9 @@ class ChatServer:
         self.server_socket.bind((self.ip, self.port))
         self.server_socket.listen(10)
         self.log.debug("Start ChatServer...")
-        self.log.debug(f"Listening on {self.ip}:{self.port}")
-        print(f"Listening on {self.ip}:{self.port}")
+        msg = f"Listening on {self.ip}:{self.port}"
+        self.log.debug(msg)
+        print(msg)
         self.all_sockets = [self.server_socket]
         self.listen()
 
@@ -54,23 +55,34 @@ class ChatServer:
                 if item_socket == self.server_socket:
                     client_socket, client_address = self.server_socket.accept()
                     self.all_sockets.append(client_socket)
-                    client_address_name = f"{client_address[0]}:{client_address[1]}"
-                    self.log.debug(f"Established connection to {client_address_name}")
-                    print(f"Established connection to {client_address[0]}:{client_address[1]}")
+                    msg = f"Established connection to {client_address[0]}:{client_address[1]}"
+                    self.log.debug(msg)
+                    print(msg)
                 else:
                     try:
                         message = self.receive(item_socket)
                         if not message:
                             client_socket_name = f"{client_socket.getpeername()[0]}:{client_socket.getpeername()[1]}"
-                            self.log.debug(f"{client_socket_name} closed the connection")
-                            print(f"{client_socket_name} closed the connection")
-                            self.all_sockets.remove(item_socket)
+                            msg = f"{client_socket_name} closed the connection"
+                            self.log.debug(msg)
+                            print(msg)
+                            self.remove_socket(item_socket)
                             continue
                         self.broadcast(item_socket, message)
                     except ConnectionResetError as e:
-                        self.all_sockets.remove(item_socket)
-                        self.log.error(f"Client forcefully closed the connection, {e.args}")
-                        print("Client forcefully closed the connection", e)
+                        self.remove_socket(item_socket)
+                        msg = "Client forcefully closed the connection"
+                        self.log.error(f"{msg}: {e.args}")
+                        print(msg, e)
 
             for error_socket in error_sockets:
-                self.all_sockets.remove(error_socket)
+                self.remove_socket(error_socket)
+
+    def remove_socket(self, item_socket: socket.socket, /):
+        try:
+            item_socket.close()
+        except Exception:
+            pass  # Already closed
+        finally:
+            if item_socket in self.all_sockets:
+                self.all_sockets.remove(item_socket)

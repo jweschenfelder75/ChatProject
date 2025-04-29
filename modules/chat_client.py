@@ -37,15 +37,17 @@ class ChatClient:
                 return Result(f"\n{sender} > {message}", True)
         except IOError as e:
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-                self.log.error(f"Encountered error while reading: {e.args}")
-                print("Encountered error while reading", e)
+                msg = "Encountered error while reading"
+                self.log.error(f"{msg}: {e.args}")
+                print(msg, e)
                 self.client_socket.close()
                 return Result(None, False)
         except Exception as e:
-            self.log.error(f"Encountered error: {e.args}")
-            print("Encountered error", e)
+            msg = "Encountered error"
+            self.log.error(f"{msg}: {e.args}")
+            print(msg, e)
             self.client_socket.close()
-            Result(None, False)
+            return Result(None, False)
 
     def connect(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,5 +56,10 @@ class ChatClient:
         self.log.debug("Start ChatClient...")
 
     def disconnect(self):
-        self.client_socket.close()
-        self.log.debug("Stop ChatClient...")
+        try:
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+        except Exception:
+            pass  # Already closed
+        finally:
+            self.client_socket.close()
+            self.log.debug("Stopped ChatClient")

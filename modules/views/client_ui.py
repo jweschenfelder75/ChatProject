@@ -58,13 +58,16 @@ class ClientUI:
             messagebox.showinfo("Error", "Please enter a user name!")
 
     def on_close(self):
-        self.log.debug("Close Client UI...")
-        self.stop_event.set()
-        self.client.disconnect()
-        self.window.destroy()
+        if messagebox.askokcancel("Exit", "Do you really want to exit the chat?"):
+            self.log.debug("Close Client UI...")
+            self.stop_event.set()
+            self.client.disconnect()
+            self.window.destroy()
 
     def initialize(self):
-        self.window = Tk(className="Chat program")
+        title_text = "Chat program"
+        self.window = Tk(className=title_text)
+        self.window.title(title_text)
 
         name_label = Label(self.window, text="Name", anchor="e")
         name_label.grid(row=0, column=0, sticky="e")
@@ -76,26 +79,20 @@ class ClientUI:
         name_confirm_button = Button(self.window, width=20, text="Confirm", bg="white", command=self.lock_username)
         name_confirm_button.grid(row=0, column=2)
 
-        to_label = Label(self.window, text="To", anchor="e")
-        to_label.grid(row=1, column=0, sticky="e")
-
-        self.to_input = Entry(self.window, width=125)
-        self.to_input.grid(row=1, column=1, columnspan=2)
-
         self.chat_log = Text(self.window, width=100, height=20, bg="lightyellow", state=DISABLED)
-        self.chat_log.grid(row=2, column=0, columnspan=3)
+        self.chat_log.grid(row=1, column=0, columnspan=3)
 
         message_label = Label(self.window, text="Message", anchor="e")
-        message_label.grid(row=3, column=0, sticky="e")
+        message_label.grid(row=2, column=0, sticky="e")
 
         self.message_input = Entry(self.window, width=100, state=DISABLED)
-        self.message_input.grid(row=3, column=1)
+        self.message_input.grid(row=2, column=1)
 
         self.send_button = Button(self.window, width=20, text="Send", bg="white", command=self.send, state=DISABLED)
-        self.send_button.grid(row=3, column=2)
+        self.send_button.grid(row=2, column=2)
 
         exit_button = Button(self.window, width=20, text="Exit", bg="white", command=self.on_close)
-        exit_button.grid(row=4, column=2)
+        exit_button.grid(row=3, column=2)
 
         receive_thread = Thread(target=self.loop_receive, daemon=True)
         receive_thread.start()
