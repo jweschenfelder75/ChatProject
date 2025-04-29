@@ -5,16 +5,21 @@ from modules.objects import Result
 from modules.logging import FileLogger
 
 # See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
+"""
+    Business logic for the Chat Client.
+    Connects to a WebSocket server, sends messages to the server and receives messages from the server. 
+"""
 
 
 class ChatClient:
     def __init__(self, ip: str, port: int, /):
         """
         Constructor of the class ChatClient.
+        IP Address and Port must be the same as the of the Socket Server.
 
         Args:
-            ip ():
-            port ():
+            ip (str): IP Address of the Socket Server (where it should be connected to)
+            port (int): Port of the Socket Server (where it should be connected to)
         """
         self.log = FileLogger(ChatClient.__name__)
         self.utils = Utils()
@@ -24,13 +29,14 @@ class ChatClient:
 
     def send(self, username: str, message: str, /) -> str:
         """
+        Sends the given username and text message to the socket server using UTF-8 encoding.
 
         Args:
-            username ():
-            message ():
+            username (str): Username of the person using the Client
+            message (str): Message from the user
 
         Returns:
-
+            str | None: Client message in plain text or None.
         """
         if message == "[exit]":  # Not really needed at the moment can be used for client status later
             message = self.utils.format_message(username, "Signing out")
@@ -45,9 +51,10 @@ class ChatClient:
 
     def receive(self) -> Result:
         """
+        Decodes an incoming decoded UTF-8 messsage and returns it in plain text format.
 
         Returns:
-
+            str | None: Client message in plain text or None.
         """
         try:
             message_size = self.client_socket.recv(self.utils.get_length_header_size())
@@ -72,7 +79,8 @@ class ChatClient:
 
     def connect(self):
         """
-
+        Establishes the Socket Client and connects it to the Server Socket where it will listen
+        for incoming Socket messages.
         """
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.ip, self.port))
@@ -81,7 +89,7 @@ class ChatClient:
 
     def disconnect(self):
         """
-
+        Disconnects the Client's Socket.
         """
         try:
             self.client_socket.shutdown(socket.SHUT_RDWR)

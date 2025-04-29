@@ -5,6 +5,11 @@ from modules.views import ServerUI
 from modules.logging import FileLogger
 
 # See: https://bmu-verlag.de/interprozesskommunikation-sockets-ein-chatprogramm-in-python-implementieren-teil-3/
+"""
+    Business logic for the Chat Server.
+    Establishes the WebSockets server side, listens on a specific ip and port, manages client connections, 
+    broadcasts incoming messages. 
+"""
 
 
 class ChatServer:
@@ -13,8 +18,8 @@ class ChatServer:
         Constructor of the class ChatServer.
 
         Args:
-            ip ():
-            port ():
+            ip (str): IP Address of the Socket Server (where it should listen on)
+            port (int): Port of the Socket Server (where it should listen on)
         """
         self.log = FileLogger(ChatServer.__name__)
         self.utils = Utils()
@@ -28,12 +33,13 @@ class ChatServer:
 
     def receive(self, client_socket: socket.socket, /) -> str | None:
         """
+            Decodes an incoming decoded UTF-8 messsage from a given Client Socket and returns it in plain text format.
 
         Args:
-            client_socket ():
+            client_socket (socket): Client Socket
 
         Returns:
-
+            str | None: Client message in plain text or None.
         """
         size_header = client_socket.recv(self.utils.get_length_header_size())
         if not size_header:
@@ -47,11 +53,22 @@ class ChatServer:
         return f"{size_header}{user_header}{message}"
 
     def broadcast(self, sender: socket.socket, message: str, /):
+        """
+        Broadcasts the message from a sending Socket Client to all other Clients in encoded UTF-8 format.
+
+        Args:
+            sender (socket): Sending Client
+            message (str): Message from the sending Client
+        """
         for item_socket in self.all_sockets:
             if item_socket != sender and item_socket != self.server_socket:
                 item_socket.send(message.encode("utf-8"))
 
     def connect(self):
+        """
+        Establishes the Socket Server at a specific IP address and port where it will listen
+        for incoming Socket Client messages.
+        """
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.ip, self.port))
         self.server_socket.listen(10)
@@ -64,7 +81,9 @@ class ChatServer:
 
     def listen(self):
         """
-
+        Listens on the Server's Socket for incoming messages from a Client.
+        Adds a new Client to the Sockets Pool.
+        Removes the Socket Client from the Sockets Pool if some error occured.
         """
         client_socket = None
         while True:
@@ -96,16 +115,17 @@ class ChatServer:
             for error_socket in error_sockets:
                 self.remove_socket(error_socket)
 
-    def remove_socket(self, item_socket: socket.socket, /):
+    def remove_socket(self, client_socket: socket.socket, /):
         """
+        Removes the given Socket Client from the Sockets Pool.
 
         Args:
-            item_socket ():
+            client_socket (socket): Socket Client
         """
         try:
-            item_socket.close()
+            client_socket.close()
         except Exception:
             pass  # Already closed
         finally:
-            if item_socket in self.all_sockets:
-                self.all_sockets.remove(item_socket)
+            if client_socket in self.all_sockets:
+                self.all_sockets.remove(client_socket)
