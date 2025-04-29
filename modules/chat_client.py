@@ -16,7 +16,7 @@ class ChatClient:
         self.client_socket = None
 
     def send(self, username: str, message: str, /) -> str:
-        if message == "[exit]":
+        if message == "[exit]":  # Not really needed at the moment can be used for client status later
             message = self.utils.format_message(username, "Signing out")
             self.client_socket.send(message.encode("utf-8"))
             self.client_socket.close()
