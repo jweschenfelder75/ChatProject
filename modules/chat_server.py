@@ -21,9 +21,9 @@ class ChatServer(ChatBaseClass):
             port (int): Port of the Socket Server (where it should listen on)
         """
         super().__init__(ip, port)
-        self.all_sockets = None
-        self.server_socket = None
-        self.client_socket = None
+        self.__all_sockets = None
+        self.__server_socket = None
+        self.__client_socket = None
         print(ServerUI())
         self.connect()
 
@@ -56,8 +56,8 @@ class ChatServer(ChatBaseClass):
             sender (socket): Sending Client
             message (str): Message from the sending Client
         """
-        for item_socket in self.all_sockets:
-            if item_socket != sender and item_socket != self.server_socket:
+        for item_socket in self.__all_sockets:
+            if item_socket != sender and item_socket != self.__server_socket:
                 item_socket.send(message.encode("utf-8"))
 
     def connect(self):
@@ -65,14 +65,14 @@ class ChatServer(ChatBaseClass):
         Establishes the Socket Server at a specific IP address and port where it will listen
         for incoming Socket Client messages.
         """
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind((self.ip, self.port))
-        self.server_socket.listen(10)
+        self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server_socket.bind((self.ip, self.port))
+        self.__server_socket.listen(10)
         self.log.debug("Start ChatServer...")
         msg = f"Listening on {self.ip}:{self.port}"
         self.log.debug(msg)
         print(msg)
-        self.all_sockets = [self.server_socket]
+        self.__all_sockets = [self.__server_socket]
         self.listen()
 
     def listen(self):
@@ -83,11 +83,11 @@ class ChatServer(ChatBaseClass):
         """
         client_socket = None
         while True:
-            read_sockets, _, error_sockets = select.select(self.all_sockets, [], self.all_sockets)
+            read_sockets, _, error_sockets = select.select(self.__all_sockets, [], self.__all_sockets)
             for item_socket in read_sockets:
-                if item_socket == self.server_socket:
-                    client_socket, client_address = self.server_socket.accept()
-                    self.all_sockets.append(client_socket)
+                if item_socket == self.__server_socket:
+                    client_socket, client_address = self.__server_socket.accept()
+                    self.__all_sockets.append(client_socket)
                     msg = f"Established connection to {client_address[0]}:{client_address[1]}"
                     self.log.debug(msg)
                     print(msg)
@@ -123,5 +123,5 @@ class ChatServer(ChatBaseClass):
         except Exception:
             pass  # Already closed
         finally:
-            if client_socket in self.all_sockets:
-                self.all_sockets.remove(client_socket)
+            if client_socket in self.__all_sockets:
+                self.__all_sockets.remove(client_socket)

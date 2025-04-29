@@ -22,7 +22,7 @@ class ChatClient(ChatBaseClass):
             port (int): Port of the Socket Server (where it should be connected to)
         """
         super().__init__(ip, port)
-        self.client_socket = None
+        self.__client_socket = None
 
     def send(self, username: str, message: str, /) -> str:
         """
@@ -37,13 +37,13 @@ class ChatClient(ChatBaseClass):
         """
         if message == "[exit]":  # Not really needed at the moment can be used for client status later
             message = self.utils.format_message(username, "Signing out")
-            self.client_socket.send(message.encode("utf-8"))
-            self.client_socket.close()
+            self.__client_socket.send(message.encode("utf-8"))
+            self.__client_socket.close()
             self.log.debug("Signed out")
             return "\nSigned out"
         elif message:
             formatted_message = self.utils.format_message(username, message).encode("utf-8")
-            self.client_socket.send(formatted_message)
+            self.__client_socket.send(formatted_message)
             return f"\n{username} > {message}"
 
     def receive(self) -> Result:
@@ -54,24 +54,24 @@ class ChatClient(ChatBaseClass):
             str | None: Client message in plain text or None.
         """
         try:
-            message_size = self.client_socket.recv(self.utils.get_length_header_size())
+            message_size = self.__client_socket.recv(self.utils.get_length_header_size())
             if message_size:
                 message_size = int(message_size.decode("utf-8").strip())
-                sender = self.client_socket.recv(self.utils.get_user_header_size()).decode("utf-8").strip()
-                message = self.client_socket.recv(message_size).decode("utf-8")
+                sender = self.__client_socket.recv(self.utils.get_user_header_size()).decode("utf-8").strip()
+                message = self.__client_socket.recv(message_size).decode("utf-8")
                 return Result(f"\n{sender} > {message}", True)
         except IOError as e:
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
                 msg = "Encountered error while reading"
                 self.log.error(f"{msg}: {e.args}")
                 print(msg, e)
-                self.client_socket.close()
+                self.__client_socket.close()
                 return Result(None, False)
         except Exception as e:
             msg = "Encountered error"
             self.log.error(f"{msg}: {e.args}")
             print(msg, e)
-            self.client_socket.close()
+            self.__client_socket.close()
             return Result(None, False)
 
     def connect(self):
@@ -79,9 +79,9 @@ class ChatClient(ChatBaseClass):
         Establishes the Socket Client and connects it to the Server Socket where it will listen
         for incoming Socket messages.
         """
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.connect((self.ip, self.port))
-        self.client_socket.setblocking(False)
+        self.__client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__client_socket.connect((self.ip, self.port))
+        self.__client_socket.setblocking(False)
         self.log.debug("Start ChatClient...")
 
     def disconnect(self):
@@ -89,9 +89,9 @@ class ChatClient(ChatBaseClass):
         Disconnects the Client's Socket.
         """
         try:
-            self.client_socket.shutdown(socket.SHUT_RDWR)
+            self.__client_socket.shutdown(socket.SHUT_RDWR)
         except Exception:
             pass  # Already closed
         finally:
-            self.client_socket.close()
+            self.__client_socket.close()
             self.log.debug("Stopped ChatClient")
