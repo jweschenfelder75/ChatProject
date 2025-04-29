@@ -4,7 +4,7 @@ Utility class with several methods.
 
 
 class Utils:
-    __LENGTH_HEADER_SIZE = 8
+    __LENGTH_HEADER_SIZE = 16
     __USER_HEADER_SIZE = 16
 
     @staticmethod
